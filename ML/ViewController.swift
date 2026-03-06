@@ -146,6 +146,20 @@ extension ViewController {
             return
         }
 
+        // ✅ 你要“导入自定义模型”，就是在这一步做：
+        // - 当前用的是 Vision 自带的人像分割：`VNGeneratePersonSegmentationRequest`
+        // - 如果要换成你自己的 `.mlmodel`（例如自训练的分割网络），就在这里把它替换为 `VNCoreMLRequest`
+        //
+        // 自定义模型接入要点（只做提示，按你的模型输出调整）：
+        // 1) 把 `MySegmentation.mlmodel` 拖进 Xcode（会自动生成 `MySegmentation` 类）
+        // 2) `let vnModel = try VNCoreMLModel(for: MySegmentation().model)`
+        // 3) `let request = VNCoreMLRequest(model: vnModel) { req, err in ... }`
+        // 4) 在回调里从 `req.results` 取 `VNCoreMLFeatureValueObservation`：
+        //    - 若输出是 pixelBuffer：`obs.featureValue.imageBufferValue`（推荐，最贴近你现在的 mask 流程）
+        //    - 若输出是 multiArray：`obs.featureValue.multiArrayValue`（需要你自己转成单通道 mask）
+        //
+        // ⚠️ 注意：你下面的 `applyMaskWithCoreImage(...)` 期望的是“单通道灰度 mask”（0~255 或 0~1 可映射），
+        // 最省事的方式是让自定义模型直接输出 `CVPixelBuffer` 的灰度 mask。
         let request = VNGeneratePersonSegmentationRequest { [weak self] req, err in
             guard let self = self else { return }
             if let err = err {
