@@ -1,7 +1,7 @@
 import UIKit
 import Vision
 import CoreImage
-
+// 两层,下面一层是原始图片,上面一层是灰度图,有人的地方是色,灰度拿到白色(x,y),对应读取原始图片的橡树
 class ViewController: UIViewController {
     private let ciContext = CIContext(options: [.useSoftwareRenderer: false])
 
@@ -50,7 +50,7 @@ class ViewController: UIViewController {
         let btn = UIButton(type: .system)
         btn.setTitle("选择图片", for: .normal)
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        btn.addTarget(self, action: #selector(selectImageTapped), for: .touchUpInside)
+       
         btn.backgroundColor = .systemBlue
         btn.setTitleColor(.white, for: .normal)
         btn.layer.cornerRadius = 8
@@ -65,6 +65,7 @@ class ViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .white
         title = "人像背景分割"
+        selectImageButton.addTarget(self, action: #selector(selectImageTapped), for: .touchUpInside)
 
         [originalImageView, maskPreviewImageView, personImageView, backgroundImageView, selectImageButton].forEach {
             view.addSubview($0)
